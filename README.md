@@ -19,16 +19,16 @@ derived information is saved in a single SQLite database file.
 
 Pipeline Stages
 ---------------
-*db_setup.py*             initialize a new project  
-*import_reads.py*         specify locations of .fastq files  
-*assemble_pairs.py*       combine paired ends into single sequences  
-*remove_duplicates.py*    dereplication  
-*filter_host.py*          filter host sequences from assembled pairs
-*map_reference.py*        find known sequences to seed clusters  
-*form_otus.py*            clustering  
-*filter_chimeras.py*      identify chimeric sequences  
-*map_otus.py*             assign sequences to clusters  
-*classify.py*             taxonomic classification of clusters    
+*db_setup.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialize a new project  
+*import_reads.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;specify locations of .fastq files  
+*assemble_pairs.py*&nbsp;&nbsp;&nbsp;&nbsp;combine paired ends into single sequences  
+*remove_duplicates.py*&nbsp;&nbsp;dereplication  
+*filter_host.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter host sequences from assembled pairs
+*map_reference.py*&nbsp;&nbsp;&nbsp;&nbsp;find known sequences to seed clusters  
+*form_otus.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clustering  
+*filter_chimeras.py*&nbsp;&nbsp;&nbsp;identify chimeric sequences  
+*map_otus.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign sequences to clusters  
+*classify.py*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taxonomic classification of clusters    
 
 Data Analysis
 -------------
