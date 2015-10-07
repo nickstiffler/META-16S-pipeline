@@ -62,7 +62,7 @@ def run_panda(args, sid, fn1, fn2, primers):
 ###
 # Import the assembled sequences
 
-insert_sequence = 'INSERT INTO panda (sample_id, defline, sequence) VALUES (?, ?, ?)'
+insert_sequence = 'INSERT INTO merged (sample_id, defline, sequence, filtered) VALUES (?, ?, ?, 0)'
 
 def import_results(db, args, sid):
     file = open(os.path.join(args.workspace, merge_file_pattern.format(sid)))
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         with_limits = True,
         specs = [
             ('directory',    { 'metavar': 'dir', 'help' : 'name of directory containing FASTQ files' } ),
-            ('workspace',    { 'metavar': 'dir', 'help' : 'working directory', 'default' : 'panda' } ),
+            ('workspace',    { 'metavar': 'dir', 'help' : 'working directory', 'default' : 'merged' } ),
             ('algorithm',    { 'metavar': 'name', 'help' : 'algorithm for computing overlaps'} ),
             ('minlength',    { 'metavar': 'N', 'help' : 'minimum assembled sequence length', 'type' : int} ),
             ('minoverlap',   { 'metavar': 'N', 'help' : 'minimum overlap length', 'type' : int} ),
@@ -121,8 +121,8 @@ if __name__ == "__main__":
     record_metadata(db, 'start', ' '.join(sys.argv[1:]))
     
     try:
-        panda_spec = [('sample_id', 'foreign', 'samples'), ('defline', 'TEXT'),  ('sequence', 'TEXT')]
-        init_table(db, 'panda', 'panda_id', panda_spec, args.force, args.sample)
+        merged_spec = [('sample_id', 'foreign', 'samples'), ('defline', 'TEXT'),  ('sequence', 'TEXT'), ('filtered', 'INTEGER')]
+        init_table(db, 'merged', 'merged_id', merged_spec, args.force, args.sample)
     except Exception as err:
         print('Error while initializing output table:', err)
         argparse.ArgumentParser.exit(1, 'Script aborted')
