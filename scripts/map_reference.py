@@ -76,7 +76,7 @@ drop_table = 'DROP TABLE {}'.format(table_name)
 # db_cols = ', '.join(map(lambda x: x[1] + ' ' + x[2], hit_fields))
 # create_table = 'CREATE TABLE {tbl} ( hit_id INTEGER PRIMARY KEY AUTOINCREMENT, {cols} )'.format(tbl = table_name, cols = db_cols)
 
-create_table = 'CREATE TABLE {tbl} ( hit_id INTEGER PRIMARY KEY AUTOINCREMENT, panda_id INTEGER, match_id TEXT, identity REAL, query_length INTEGER, match_pairs INTEGER, match_start INTEGER, match_end INTEGER, match_chars TEXT)'.format(tbl = table_name)
+create_table = 'CREATE TABLE {tbl} ( hit_id INTEGER PRIMARY KEY AUTOINCREMENT, merged_id INTEGER, match_id TEXT, identity REAL, query_length INTEGER, match_pairs INTEGER, match_start INTEGER, match_end INTEGER, match_chars TEXT)'.format(tbl = table_name)
 	
 def prepare_table(db, args):
 	"""
@@ -94,7 +94,7 @@ def prepare_table(db, args):
 ###
 # Print sequences in the uniq table in fasta format.
 
-fetch_sequences = 'SELECT defline, sequence, n FROM uniq JOIN panda USING (panda_id)'
+fetch_sequences = 'SELECT defline, sequence, n FROM uniq JOIN panda USING (panda_id) WHERE filtered = 0'
 	
 def print_sequences(db, args):
 	sql = fetch_sequences
@@ -134,7 +134,7 @@ def run_usearch_local(args):
 # qmarks = ', '.join(map(lambda x: '?',hit_fields))		# baroque way of making one ? for each column....
 # insert_hit = 'INSERT INTO {tbl} ({cols}) VALUES ({qmarks})'.format(tbl = table_name, cols = cols, qmarks = qmarks)
 
-insert_hit = 'INSERT INTO {tbl} (panda_id, match_id, identity, query_length, match_pairs, match_start, match_end, match_chars) VALUES (?,?,?,?,?,?,?,?)'.format(tbl = table_name)
+insert_hit = 'INSERT INTO {tbl} (merged_id, match_id, identity, query_length, match_pairs, match_start, match_end, match_chars) VALUES (?,?,?,?,?,?,?,?)'.format(tbl = table_name)
 
 def import_results(db, args):
 	dm = defline_map(db)					# maps query IDs (deflines) into panda_ids

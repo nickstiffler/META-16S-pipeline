@@ -41,8 +41,8 @@ def print_execution_times(args):
 ###
 # Top level:  print stats about data tables
 
-tables = ['reads', 'panda', 'uniq', 'seeds', 'chimeras', 'otu', 'taxonomy']
-bcids = ['reads', 'panda', 'uniq', 'otu']
+tables = ['reads', 'merged', 'uniq', 'seeds', 'chimeras', 'otu', 'taxonomy']
+bcids = ['reads', 'merged', 'uniq', 'otu']
 
 def print_counts(args):
 	db = sqlite3.connect(args.dbname)

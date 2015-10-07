@@ -60,7 +60,7 @@ def run_usearch_global(sid, args):
 # Populate the table 
 
 insert_record = 'INSERT INTO otus (otu_id, sample_id, count) VALUES (?,?,?)'
-fetch_counts = 'SELECT defline, n FROM panda JOIN uniq USING (panda_id) where uniq.sample_id = {}'
+fetch_counts = 'SELECT defline, n FROM merged JOIN uniq USING (merged_id) WHERE uniq.sample_id = {} AND filtered = 0'
 
 def import_results(db, args, sid):
     cmap = defline_map(db, sid)            # map deflines to number of times seq found in this sample

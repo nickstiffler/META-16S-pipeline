@@ -38,7 +38,7 @@ def print_sequences(db, args):
 # select_unique_sequences = 'SELECT panda_id, n, defline, sequence FROM uniq JOIN panda USING (panda_id)'
 
 def fetch_unique_sequences(db, args):
-    sql = 'SELECT panda_id, sum(n) as count, defline, sequence FROM uniq JOIN panda USING (panda_id)'
+    sql = 'SELECT merged_id, sum(n) as count, defline, sequence FROM uniq JOIN merged USING (merged_id) WHERE filtered = 0'
     if not args.singletons:
         sql += ' WHERE n > 1'
     sql += ' GROUP by sequence'
@@ -53,7 +53,7 @@ def print_unique_sequences(db, args):
         print_one_seq(ff, n, defline, sequence)
     ff.close()
 
-select_hits = 'SELECT panda_id, identity, match_id, match_chars FROM hits'
+select_hits = 'SELECT merged_id, identity, match_id, match_chars FROM hits'
 
 def merge_ref_with_unique(db, args):
     record_metadata(db, 'query', select_hits)

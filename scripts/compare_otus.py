@@ -121,7 +121,7 @@ def cluster_details(db):
         print_line(None, bid, None, btaxon, set(), seqs_in_b)
 
 def sequence_set(db, x, row):
-    sql = 'SELECT sequence from {d}.members join {d}.panda on (defline = name) where cluster_id = {r}'.format(d=x, r=row)
+    sql = 'SELECT sequence from {d}.members join {d}.merged on (defline = name) where cluster_id = {r}'.format(d=x, r=row)
     res = db.execute(sql)
     return set(map(lambda x: x[0], res))
 

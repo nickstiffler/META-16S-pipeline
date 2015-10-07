@@ -76,10 +76,10 @@ def parse_clusters(args, sid):
 # for a sample, so we need to delete any old sequences for that sample from the
 # panda table.
 
-insert_sequence = 'INSERT INTO panda (sample_id, defline, sequence) VALUES (?, ?, ?)'
+insert_sequence = 'INSERT INTO merged (sample_id, defline, sequence, filtered) VALUES (?, ?, ?, 0)'
 
 def import_sequences(db, args, sid):
-    db.execute('DELETE FROM panda WHERE sample_id = ?', (sid, ))
+    db.execute('DELETE FROM merged WHERE sample_id = ?', (sid, ))
     file = open(os.path.join(args.workspace, output_file_pattern.format(sid)))
     defline = file.readline()
     while len(defline) > 0:
@@ -92,7 +92,7 @@ def import_sequences(db, args, sid):
 # Two things to do after each run of cd-hit-dup: if the panda table is empty we
 # need to import the sequences, then import the clusters into the uniq table.
 
-insert_cluster = 'INSERT INTO uniq (panda_id, sample_id, n) VALUES (?, ?, ?)'
+insert_cluster = 'INSERT INTO uniq (merged_id, sample_id, n) VALUES (?, ?, ?)'
 
 def import_results(db, args, sid):
     if args.load_seqs:
@@ -122,9 +122,9 @@ if __name__ == "__main__":
     args = init_api(
         desc = "Run cd-hit-dup to find unique assembled sequences.",
         specs = [
-            ('directory',    { 'metavar': 'dir', 'help' : 'name of directory containing assembled FASTQ files', 'default' : 'panda' } ),
+            ('directory',    { 'metavar': 'dir', 'help' : 'name of directory containing assembled FASTQ files', 'default' : 'merged' } ),
             ('workspace',    { 'metavar': 'dir', 'help' : 'working directory', 'default' : 'uniq' } ),
-            ('load_seqs',    { 'action': 'store_true', 'help' : 'load unique sequences into panda table'} ),
+            ('load_seqs',    { 'action': 'store_true', 'help' : 'load unique sequences into merged table'} ),
             ('sample',       { 'metavar': 'id', 'help' : 'process sequences from this sample only'} ),
         ]
     )
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     record_metadata(db, 'start', ' '.join(sys.argv[1:]))
 
     try:
-        uniq_spec = [('panda_id', 'foreign', 'panda'), ('sample_id', 'foreign', 'samples'), ('n', 'INTEGER')]
+        uniq_spec = [('merged_id', 'foreign', 'merged'), ('sample_id', 'foreign', 'samples'), ('n', 'INTEGER')]
         init_table(db, 'uniq', 'uniq_id', uniq_spec, args.force, args.sample)
     except Exception as err:
         print('Error while initializing output table:', err)
