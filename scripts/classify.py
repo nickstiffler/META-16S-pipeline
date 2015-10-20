@@ -147,7 +147,7 @@ if __name__ == "__main__":
     try:
         taxonomy_spec = list(map(lambda x: (x+'_id', 'foreign', x), levels))
         taxonomy_spec += list(map(lambda x: ('p_'+x, 'REAL'), levels))
-        init_table(db, 'taxonomy', 'taxonomy_id', taxonomy_spec, args.force)
+        init_table(db, 'taxonomy', 'taxonomy_id', [('otu_id', 'foreign', 'otus')] + taxonomy_spec, args.force)
     except Exception as err:
         print('Error while initializing output tables:', err)
         argparse.ArgumentParser.exit(1, 'Script aborted')
