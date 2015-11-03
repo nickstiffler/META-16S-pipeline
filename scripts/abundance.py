@@ -54,7 +54,7 @@ def create_abundance_table(db, args):
 	query = 'CREATE TABLE {t} AS '.format(t=table_name)
 	query += 'SELECT {g}.{g}_id AS {g}_id, samples.sample_id AS sample_id, sum(count) AS n '.format(g=tax_tbl_name[args.group])
 	join1 = '{g} JOIN samples'.format(g=tax_tbl_name[args.group])
-	join2 = 'otu JOIN taxonomy USING (otu_id)'
+	join2 = 'otus JOIN taxonomy USING (otu_id)'
 	query += 'FROM {} LEFT OUTER JOIN ({}) USING (sample_id, {}_id) '.format(join1, join2, tax_tbl_name[args.group])
 	query += 'GROUP BY samples.sample_id, {g}.{g}_id'.format(g=tax_tbl_name[args.group])
 	query += ' ORDER BY sample_id, {g}_id'.format(g=tax_tbl_name[args.group])
