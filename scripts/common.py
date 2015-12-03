@@ -187,7 +187,7 @@ def defline_map(db, sample_id = None):
     dm = { }
     query = fetch_from_merged
     if sample_id:
-        query += ' WHERE sample_id = {}'.format(sample_id)
+        query += ' AND sample_id = {}'.format(sample_id)
     for pid, defline in db.execute(query):
         dm[defline] = pid
     return dm

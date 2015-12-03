@@ -12,6 +12,7 @@ import os
 import os.path
 import re
 import sys
+import multiprocessing
 
 from common import *
 
@@ -26,11 +27,11 @@ input_file = 'merged.fasta'
 # Should it check for a "merged" folder and use those sequence instead to save time?
 
 def print_sequences(db, args):
-    fetch_clusters = 'SELECT defline, sequence FROM merged WHERE filtered = 0'
+    fetch_clusters = 'SELECT merged_id, sequence FROM merged WHERE filtered = 0'
     record_metadata(db, 'query', fetch_clusters)
     ff = open(os.path.join(args.workspace, input_file), 'w')
-    for name, sequence in db.execute(fetch_clusters):
-        print('>{}'.format(name), file=ff)
+    for id, sequence in db.execute(fetch_clusters):
+        print('>{}'.format(id), file=ff)
         print(sequence, file=ff)    
     ff.close()
 
@@ -38,7 +39,7 @@ def print_sequences(db, args):
 # Run the app
 
 def run_bowtie(args):
-    cmnd = 'bowtie2 -p {} '.format(os.cpu_count())
+    cmnd = 'bowtie2 -p {} '.format(multiprocessing.cpu_count())
     cmnd += ' --no-unal ' # Suppress unaligned reads from SAM file
     cmnd += ' -f ' # Fasta as input instead of fatsq
     cmnd += ' --no-hd ' # Suppress header
@@ -53,7 +54,7 @@ def run_bowtie(args):
 # Parse the output file, update merged table to indicate the sequence matches host
 # Use "2" for filtered column
 
-update_record = 'UPDATE merged (merged_id, filtered) VALUES (?,2)'
+update_record = 'UPDATE merged SET merged_id = ?, filtered = 2'
 
 def import_results(db, args):
     #mmap = make_mmap(db)
@@ -62,7 +63,9 @@ def import_results(db, args):
         defspec = res[0]
         #host = res[-1].strip()
         #db.execute(update_record, (mmap[defspec]))
-        print (merged_from_defline(defspec))
+        #print (merged_from_defline(defspec))
+        #print (defspec)
+        db.execute(update_record, (defspec,))
 
 # Is this nessecary or can we just have merged_id in the FASTA and skip this step?
 # Found this step takes too long. Replacing with individual queries
@@ -73,7 +76,7 @@ def make_mmap(db):
     return mmap
 
 def merged_from_defline(defline):
-    if db.execute('SELECT merged_id, defline FROM merge'):
+    if db.execute('SELECT merged_id, defline FROM merged WHERE defline = ?', defline):
         return db.fetchone()[0]
 
 ###

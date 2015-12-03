@@ -94,12 +94,12 @@ def prepare_table(db, args):
 ###
 # Print sequences in the uniq table in fasta format.
 
-fetch_sequences = 'SELECT defline, sequence, n FROM uniq JOIN panda USING (panda_id) WHERE filtered = 0'
+fetch_sequences = 'SELECT defline, sequence, n FROM uniq JOIN merged USING (merged_id) WHERE filtered = 0'
 	
 def print_sequences(db, args):
 	sql = fetch_sequences
 	if not args.singletons:
-		sql += ' WHERE n > 1'
+		sql += ' AND n > 1'
 	db.execute("INSERT INTO log VALUES (DATETIME('NOW'), ?, ?, ?)", (sys.argv[0], 'query', sql))
 	
 	ff = open(os.path.join(args.workspace, input_file), 'w')
@@ -168,7 +168,7 @@ def init_api():
 	parser.add_argument('-f', '--force', action='store_true', help='re-initialize an existing table')
 	parser.add_argument('--singletons', action='store_true', help = 'include singletons (default: disregard singletons)')
 	parser.add_argument('-w', '--workspace', help='working directory', default='hits')
-	parser.add_argument('-r', '--reference', help='FASTA file containing reference sequences', default=sys.path[0]+'/resources/rRNA16S.gold.fasta')
+	parser.add_argument('-r', '--reference', help='FASTA file containing reference sequences', default=resource_dir + '/rRNA16S.gold.fasta')
 	parser.add_argument('-i', '--identity', help='minimum percent identity', default=0.97)
 	parser.add_argument('-m', '--match', help='minimum percent of query that must align', default=0.95)
 	return parser.parse_args()
