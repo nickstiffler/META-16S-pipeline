@@ -13,7 +13,7 @@ import multiprocessing
 from common import *
 
 controls_file = "controls.fasta"
-sequence_file = "sequences.fasta"
+sequences_file = "sequences.fasta"
 output_file = "results.uc"
 
 def map_sample_ids(db, args):
@@ -24,12 +24,18 @@ def map_sample_ids(db, args):
     if args.controls is not None:
         for line in open(args.controls):
             sample = line.rstrip()
-            sample_id = db.execute(fetch_sids, (sample)).fetchone()
+            sample_id = db.execute(fetch_sids, (sample,)).fetchone()
             if sample_id:
-                sids.append(sample_id)
+                sids.append(sample_id[0])
     
     return sids               
-    
+
+
+def flag_controls(db, args):
+    sids = map_sample_ids(db, args)
+    update_controls = 'UPDATE merged SET filtered = 8 WHERE sample_id = ?'
+    for sid in sids:
+        db.execute(update_controls, (sid,))
                     
 def print_sequences(db, args):
     sids = map_sample_ids(db, args)
@@ -58,17 +64,16 @@ def run_comparison(args):
     res = os.system(cmnd)
     
 def import_results(db, args):
-    update_record = 'UPDATE merged SET merged_id = ?, filtered = 8'
-    for line in open(os.path.join(args.workspace, result_file)):
+    update_record = 'UPDATE merged SET filtered = 8 WHERE merged_id = ?'
+    for line in open(os.path.join(args.workspace, output_file)):
         res = line.rstrip().split('\t')
-        # First flag the neg. control sequence as filtered 
-        db.execute(update_record, (res[8]))
-        # Then, if it there is a hit, flag that one too
+        
         if res[0] == 'H':
-            db.execute(update_record, (res[9],))
+            db.execute(update_record, (res[8],))
     
 def filter_controls(db, args):
     init_workspace(args)
+    flag_controls(db, args)
     print_sequences(db, args)
     run_comparison(args)
     import_results(db, args)
