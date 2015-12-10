@@ -10,6 +10,8 @@
 import sqlite3
 import multiprocessing
 
+from common import *
+
 controls_file = "controls.fasta"
 sequence_file = "sequences.fasta"
 output_file = "results.uc"
@@ -56,11 +58,7 @@ def run_comparison(args):
     res = os.system(cmnd)
     
 def import_results(db, args):
-    # Also flag neg. controls as 8
     update_record = 'UPDATE merged SET merged_id = ?, filtered = 8'
-
-def import_results(db, args):
-    #mmap = make_mmap(db)
     for line in open(os.path.join(args.workspace, result_file)):
         res = line.rstrip().split('\t')
         # First flag the neg. control sequence as filtered 
