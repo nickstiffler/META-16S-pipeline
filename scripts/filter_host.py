@@ -54,7 +54,7 @@ def run_bowtie(args):
 # Parse the output file, update merged table to indicate the sequence matches host
 # Use "2" for filtered column
 
-update_record = 'UPDATE merged SET merged_id = ?, filtered = 2'
+update_record = 'UPDATE merged SET filtered = 2 WHERE merged_id = ?'
 
 def import_results(db, args):
     #mmap = make_mmap(db)
