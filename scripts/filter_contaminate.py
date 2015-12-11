@@ -12,14 +12,19 @@ import multiprocessing
 
 from common import *
 
+# Define filenames (may be referenced by more than one function)
+
 controls_file = "controls.fasta"
 sequences_file = "sequences.fasta"
 output_file = "results.uc"
 
+###
+# Utility function to convert the human readable sample name to db ids
+
 def map_sample_ids(db, args):
     fetch_sids = "SELECT sample_id FROM samples WHERE name = ?"
     record_metadata(db, 'query', fetch_sids)
-    sids = ()
+    sids = []
     
     if args.controls is not None:
         for line in open(args.controls):
@@ -30,6 +35,8 @@ def map_sample_ids(db, args):
     
     return sids               
 
+###
+# Flag all the control sequences as contaminate
 
 def flag_controls(db, args):
     sids = map_sample_ids(db, args)
@@ -37,9 +44,14 @@ def flag_controls(db, args):
     for sid in sids:
         db.execute(update_controls, (sid,))
                     
+###
+# Print two fasta files: The sample sequences in one and the sequences of just the controls in another
+
 def print_sequences(db, args):
     sids = map_sample_ids(db, args)
-    fetch_merged = 'SELECT merged_id, sample_id, sequence FROM merged WHERE filtered = 0'
+    # Include the filtered set because if this was already run, the controls would be marked as filtered
+    # and excluded
+    fetch_merged = 'SELECT merged_id, sample_id, sequence FROM merged' 
     record_metadata(db, 'query', fetch_merged)
     cf = open(os.path.join(args.workspace, controls_file), 'w')
     ff = open(os.path.join(args.workspace, sequences_file), 'w')
@@ -52,6 +64,9 @@ def print_sequences(db, args):
             print(sequence, file=ff) 
     ff.close()
 
+###
+# Using the usearch exact match method, align the sequences with the controls
+
 def run_comparison(args): 
        
     cmnd = 'usearch -search_exact ' + os.path.join(args.workspace, sequences_file)
@@ -63,13 +78,20 @@ def run_comparison(args):
     record_metadata(db, 'exec', cmnd, commit=True)
     res = os.system(cmnd)
     
+###
+# Parse the output file, update merged table to indicate the sequence matches host
+# Use "8" for filtered column
+
 def import_results(db, args):
     update_record = 'UPDATE merged SET filtered = 8 WHERE merged_id = ?'
     for line in open(os.path.join(args.workspace, output_file)):
+        if line[0] == "N":
+            continue
         res = line.rstrip().split('\t')
         
-        if res[0] == 'H':
-            db.execute(update_record, (res[8],))
+        db.execute(update_record, (res[8],))
+###
+# Top level function: initialize the workspace directory, run the app 
     
 def filter_controls(db, args):
     init_workspace(args)
